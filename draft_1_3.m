@@ -107,25 +107,7 @@ function [VWAP_bid,VWAP_ask] = getVWAP(stk_haba,date_time)
     probe_bids_cells = stk_haba.order_book.bids(probe_start:probe_end);
     probe_asks_cells = stk_haba.order_book.asks(probe_start:probe_end);
     [date_range,~] = size(probe_bids_cells);
-%     i = randsample(date_range,1); %take random instance to do VWAP
-% 
-%     bid_data = cell2mat(probe_bids_cells(i));
-%     b_val = cumsum(bid_data(:,1).*bid_data(:,2));
-%     b_vol = cumsum(bid_data(:,2));
-%     VWAP_bid = b_val./b_vol;
-%     ask_data = cell2mat(probe_asks_cells(i));
-%     a_val = cumsum(ask_data(:,1).*ask_data(:,2));
-%     a_vol = cumsum(ask_data(:,2));
-%     VWAP_ask = a_val./a_vol;
 
-%     figure;
-%     hold("on")
-%     y = probe_start+i;
-%     z = datestr(date_time(y)); 
-%     plot(b_vol,VWAP_bid,'b','LineWidth',2)
-%     plot(a_vol,VWAP_ask,'r','LineWidth',2)
-%     title("Random snapshot at "+z)
-%     hold("off")
 %%%%%%%%%%%%%%%%  All individual intervals within a time frame %%%%%%%%%%%%%%%
  
     for i = 1:date_range   %remove when smaller range is found
