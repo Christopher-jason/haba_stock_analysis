@@ -45,25 +45,71 @@ trade_size = stk_haba.trade_size;
 % ylabel('Volume')
 % title('Trade Volume')
 
-%% Get 5 day moving average
+%% Get 5 day moving average price
+%get days start and end indexes
 days = zeros(31,3);
-
-for i = 1:31
+for i = str2double(date_start):str2double(date_end)
     if(i<10)
         probe_string = ['0',num2str(i),'-',month,'-2007'];
     else
         probe_string = [num2str(i),'-',month,'-2007'];
     end
-    probe = strmatch(probe_string,trade_dt);
+    day_index = strmatch(probe_string,trade_dt);
     days(i,1) = i;
-    if isempty(probe)
+    if isempty(day_index)
         days(i,2) = 0;
         days(i,3) = 0;
     else
-        days(i,2) = probe(1);
-        days(i,3) = probe(end);
+        days(i,2) = day_index(1);
+        days(i,3) = day_index(end);
     end
 end
 
+
+%plot for 5/n days moving  //assumes first 5 which are recorded and does not
+%move in a paticular week
+[n,~] = size(days);
+daycount = 1;
+moving_avg = 5;
+moving_s = 1;
+moving_e = 0;
+avg_price = zeros(5,1);
+avg_size = zeros(5,1);
+for i = 1:n
+    if daycount == moving_avg+1
+        probe_price = trade_price(moving_s:moving_e);
+        probe_size = trade_size(moving_s:moving_e);
+        figure;
+        subplot(2,2,1)
+        plot(probe_price,'r')    
+        xlabel('Time')
+        ylabel('Price')
+        title('Trade Price')
+        subplot (2,2,2);
+        plot(probe_size,'b', 'LineWidth',2)
+        xlabel('Time')
+        ylabel('Volume')
+        title('Trade Volume')
+        subplot(2,2,3)
+        plot(avg_price,'r')
+        xlabel('Time')
+        ylabel('Price')
+        title('Average Price')
+        subplot(2,2,4)
+        plot(avg_size,'b')
+        xlabel('Time')
+        ylabel('Price')
+        title('Average Size')
+        daycount = 1;
+        moving_s = 1;
+    end
+    if days(i,2)~=0
+        moving_s = min(moving_s,days(i,2));
+        moving_e = max(moving_e,days(i,3));
+        avg_price(daycount) = (sum(trade_price(moving_s:moving_e))/daycount);
+        avg_size(daycount) = (sum(trade_size(moving_s:moving_e))/daycount);
+        daycount = daycount + 1;
+    end
+end
 
 
