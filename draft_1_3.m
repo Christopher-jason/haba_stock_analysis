@@ -97,7 +97,7 @@ function [VWAP_bid,VWAP_ask] = getVWAP(stk_haba,date_time)
     month_end = "Aug"; 
     date_start = "17";   
     date_end = "17";
-    hour_min_start = "12:35";
+    hour_min_start = "12:00";
     hour_min_end = "13:35";
     probe_start = find(date_time == datetime(date_start+'-'+month_start+'-2007 '+hour_min_start+':00'));
     probe_end = find(date_time == datetime(date_end+'-'+month_end+'-2007 '+hour_min_end+':00'));
@@ -106,11 +106,11 @@ function [VWAP_bid,VWAP_ask] = getVWAP(stk_haba,date_time)
 
     probe_bids_cells = stk_haba.order_book.bids(probe_start:probe_end);
     probe_asks_cells = stk_haba.order_book.asks(probe_start:probe_end);
-    [date_range,~] = size(probe_bids_cells);
+    [time_range,~] = size(probe_bids_cells);
 
 %%%%%%%%%%%%%%%%  All individual intervals within a time frame %%%%%%%%%%%%%%%
- 
-    for i = 1:date_range   %remove when smaller range is found
+    figure;
+    for i = 1:time_range   %remove when smaller range is found
         bid_data = cell2mat(probe_bids_cells(i));
         b_val = cumsum(bid_data(:,1).*bid_data(:,2));
         b_vol = cumsum(bid_data(:,2));
@@ -119,14 +119,15 @@ function [VWAP_bid,VWAP_ask] = getVWAP(stk_haba,date_time)
         a_val = cumsum(ask_data(:,1).*ask_data(:,2));
         a_vol = cumsum(ask_data(:,2));
         VWAP_ask = a_val./a_vol;
-
-        figure;
+        c_sub = 5;
+        r_sub = ceil(time_range/c_sub);
         y = probe_start+i;
         z = datestr(date_time(y));
+        subplot(r_sub,c_sub,i)
         hold("on")
         plot(b_vol,VWAP_bid,'b','LineWidth',2)
         plot(a_vol,VWAP_ask,'r','LineWidth',2)
-        title("Snapshot at "+z)
+        title("Orderbook at "+z)
         hold("off")
     end
 
