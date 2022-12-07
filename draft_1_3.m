@@ -1,6 +1,31 @@
 %% Load data
 %%% Remove the '%' in the month you want to work with and run the program
 
+%% Get User data
+userd = 1;
+
+while userd == 1
+    date_start = intput("Enter the start date: ");   %watch-out for weekends
+    month_start = intput("Enter the start month(Jun/Jul/Aug): ",'s'); % Enter the month you loaded
+    date_end = intput("Enter the end date: ");
+    month_end = intput("Enter the end month(Jun/Jul/Aug): ",'s'); %Enter the month you loaded
+
+    if month_start =="Aug"
+        stk_haba = load('stk_aug07.mat', 'stk_haba');
+        userd = 2;
+    elseif month_start == "Jun"
+        stk_haba = load('stk_jun07.mat','stk_haba');
+        userd = 2;
+    elseif month_start == "Jul"
+        stk_haba = load('stk_jul07.mat','stk_haba');
+        userd = 2;
+    else
+        disp("Month entered is wrong")
+    end
+end
+
+
+% Hard data
 %TODO: - get month and date from user with data validation
 month_start = "Aug"; % Enter the month you loaded
 month_end = "Aug"; %Enter the month you loaded
