@@ -2,34 +2,34 @@
 %%% Remove the '%' in the month you want to work with and run the program
 
 %% Get User data
-userd = 1;
-
-while userd == 1
-    date_start = intput("Enter the start date: ");   %watch-out for weekends
-    month_start = intput("Enter the start month(Jun/Jul/Aug): ",'s'); % Enter the month you loaded
-    date_end = intput("Enter the end date: ");
-    month_end = intput("Enter the end month(Jun/Jul/Aug): ",'s'); %Enter the month you loaded
-
-    if month_start =="Aug"
-        stk_haba = load('stk_aug07.mat', 'stk_haba');
-        userd = 2;
-    elseif month_start == "Jun"
-        stk_haba = load('stk_jun07.mat','stk_haba');
-        userd = 2;
-    elseif month_start == "Jul"
-        stk_haba = load('stk_jul07.mat','stk_haba');
-        userd = 2;
-    else
-        disp("Month entered is wrong")
-    end
-end
+% userd = 1;
+% 
+% while userd == 1
+%     date_start = input("Enter the start date: ");   %watch-out for weekends
+%     month_start = input("Enter the start month(Jun/Jul/Aug): ",'s'); % Enter the month you loaded
+%     date_end = input("Enter the end date: ");
+%     month_end = input("Enter the end month(Jun/Jul/Aug): ",'s'); %Enter the month you loaded
+% 
+%     if month_start =="Aug"
+%         stk_haba = load('stk_aug07.mat', 'stk_haba');
+%         userd = 2;
+%     elseif month_start == "Jun"
+%         stk_haba = load('stk_jun07.mat','stk_haba');
+%         userd = 2;
+%     elseif month_start == "Jul"
+%         stk_haba = load('stk_jul07.mat','stk_haba');
+%         userd = 2;
+%     else
+%         disp("Month entered is wrong")
+%     end
+% end
 
 
 % Hard data
 %TODO: - get month and date from user with data validation
 month_start = "Aug"; % Enter the month you loaded
 month_end = "Aug"; %Enter the month you loaded
-date_start = "17";   %watch-out for weekends
+date_start = "1";   %watch-out for weekends
 date_end = "17";     %watch-out for weekends
 %TODO: - Manipulate start and end time as well
 
@@ -150,48 +150,12 @@ function [VWAP_bid,VWAP_ask] = getVWAP(stk_haba,date_time)
         z = datestr(date_time(y));
         subplot(r_sub,c_sub,i)
         hold("on")
-        plot(b_vol,VWAP_bid,'b','LineWidth',2)
-        plot(a_vol,VWAP_ask,'r','LineWidth',2)
+        plot(b_vol,VWAP_bid,'r','LineWidth',2)
+        plot(a_vol,VWAP_ask,'b','LineWidth',2)
         title("Orderbook at "+z)
         hold("off")
     end
 
-
-%%%%%%%%%%%%%%% Cumulative of bids and asks in a time-frame %%%%%%%%%%%%%%%
-
-%     [p_size , ~] = size(probe_bids_cells);
-%     b_vol_day = zeros(p_size,1);
-%     VWAP_bid_day = zeros(p_size,1);
-%     a_vol_day = zeros(p_size,1);
-%     VWAP_ask_day = zeros(p_size,1);
-% 
-%     for i = 1:p_size
-%         %[probe_bids_i,~] = size(cell2mat(probe_bids_cells(i)));
-%         %[probe_asks_i,~] = size(cell2mat(probe_asks_cells(i)));
-%         %num_probe = max(probe_asks_i,probe_bids_i);
-%         bid_data = cell2mat(probe_bids_cells(i));
-%         b_val = sum(bid_data(:,1).*bid_data(:,2));
-%         b_vol_day(i) = sum(bid_data(:,2));
-%         VWAP_bid_day(i) = b_val./b_vol_day(i);
-%         ask_data = cell2mat(probe_asks_cells(i));
-%         a_val = sum(ask_data(:,1).*ask_data(:,2));
-%         a_vol_day(i) = sum(ask_data(:,2));
-%         VWAP_ask_day(i) = a_val./a_vol_day(i);
-% 
-% %         figure;
-% %         hold("on")
-% %         plot(b_vol,VWAP_bid,'b','LineWidth',2)
-% %         plot(a_vol,VWAP_ask,'r','LineWidth',2)
-% %         hold("off")
-%     end
-%     figure;
-%     hold("on")
-%     plot(b_vol_day,VWAP_bid_day,'b','LineWidth',2)
-%     plot(a_vol_day,VWAP_ask_day,'r','LineWidth',2)
-%     hold("off")
-
-
-    %[n,~] = size(cell2mat(stk_haba.order_book.bids(23)))
 end
 
 %% Average Daily Volume
@@ -204,17 +168,76 @@ function ADV = getADV(stk_haba)
     date_end = "30";
 
     %Have to use traded volume
-    trade_date_time = datetime(datestr(stk_haba.trade_date_time));
-    trade_price = stk_haba.trade_price;
-    trade_size = stk_haba.trade_size;
-    probe_start = find(trade_date_time == datetime(date_start+'-'+month+'-2007 08:05:00'));
-    probe_end = find(trade_date_time == datetime(date_end+'-'+month+'-2007 16:25:00'));
-    probe_dates = datestr(trade_date_time(probe_start:probe_end));
-    probe_price = trade_price(probe_start:probe_end);
-    probe_size = trade_size(probe_start:probe_end);
+    %Have to use traded volume
+trade_dt = datestr(stk_haba.trade_date_time);
+trade_price = stk_haba.trade_price;
+trade_size = stk_haba.trade_size;
 
-    plot(probe_dates,probe_price,'r','b', "lineWidth",2);
-    plot(probe_dates,probe_size,'r','b', "lineWidth",2);
+%% Get 5 day moving average price
+%get days start and end indexes
+days = zeros(31,3);
+for i = str2double(date_start):str2double(date_end)
+    if(i<10)
+        probe_string = ['0',num2str(i),'-',month,'-2007'];
+    else
+        probe_string = [num2str(i),'-',month,'-2007'];
+    end
+    day_index = strmatch(probe_string,trade_dt);
+    days(i,1) = i;
+    if isempty(day_index)
+        days(i,2) = 0;
+        days(i,3) = 0;
+    else
+        days(i,2) = day_index(1);
+        days(i,3) = day_index(end);
+    end
+end
+
+
+%plot for 5/n days moving  //assumes first 5 which are recorded and does not
+%move in a paticular week
+[n,~] = size(days);
+daycount = 1;
+moving_avg = 5;
+moving_s = 1;
+moving_e = 0;
+avg_price = zeros(5,1);
+avg_size = zeros(5,1);
+for i = 1:n
+    if daycount == moving_avg+1
+        probe_price = trade_price(moving_s:moving_e);
+        probe_size = trade_size(moving_s:moving_e);
+        figure;
+        subplot(2,2,1)
+        plot(probe_price,'r')    
+        xlabel('Time')
+        ylabel('Price')
+        title('Trade Price')
+        subplot (2,2,2);
+        plot(probe_size,'b', 'LineWidth',2)
+        xlabel('Time')
+        ylabel('Volume')
+        title('Trade Volume')
+        subplot(2,2,3)
+        plot(avg_price,'r')
+        xlabel('Time')
+        ylabel('Price')
+        title('Average Price')
+        subplot(2,2,4)
+        plot(avg_size,'b')
+        xlabel('Time')
+        ylabel('Price')
+        title('Average Size')
+        daycount = 1;
+        moving_s = moving_e+1;
+    end
+    if days(i,2)~=0
+        moving_e = max(moving_e,days(i,3));
+        avg_price(daycount) = (sum(trade_price(moving_s:moving_e))/daycount);
+        avg_size(daycount) = (sum(trade_size(moving_s:moving_e))/daycount);
+        daycount = daycount + 1;
+    end
+end
 
 
 end

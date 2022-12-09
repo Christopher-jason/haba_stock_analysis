@@ -79,6 +79,8 @@ for i = 1:n
     if daycount == moving_avg+1
         probe_price = trade_price(moving_s:moving_e);
         probe_size = trade_size(moving_s:moving_e);
+        average_price = movmean(probe_price,3);
+        average_size = movmean(probe_size,3);
         figure;
         subplot(2,2,1)
         plot(probe_price,'r')    
@@ -91,20 +93,20 @@ for i = 1:n
         ylabel('Volume')
         title('Trade Volume')
         subplot(2,2,3)
-        plot(avg_price,'r')
+        plot(average_price,'r')
         xlabel('Time')
         ylabel('Price')
         title('Average Price')
         subplot(2,2,4)
-        plot(avg_size,'b')
+        plot(average_size,'b')
         xlabel('Time')
         ylabel('Price')
         title('Average Size')
         daycount = 1;
-        moving_s = 1;
+        moving_s = moving_e+1;
     end
     if days(i,2)~=0
-        moving_s = min(moving_s,days(i,2));
+        %moving_s = min(moving_s,days(i,2));
         moving_e = max(moving_e,days(i,3));
         avg_price(daycount) = (sum(trade_price(moving_s:moving_e))/daycount);
         avg_size(daycount) = (sum(trade_size(moving_s:moving_e))/daycount);
