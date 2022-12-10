@@ -231,7 +231,6 @@ for i = 1:n
         moving_s = moving_e+1;
     end
     if days(i,2)~=0
-        %moving_s = min(moving_s,days(i,2));
         moving_e = max(moving_e,days(i,3));
         avg_price(daycount) = (sum(trade_price(moving_s:moving_e))/daycount);
         avg_size(daycount) = (sum(trade_size(moving_s:moving_e))/daycount);

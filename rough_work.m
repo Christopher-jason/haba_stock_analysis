@@ -26,28 +26,12 @@ date_end = '31';
 trade_dt = datestr(stk_haba.trade_date_time);
 trade_price = stk_haba.trade_price;
 trade_size = stk_haba.trade_size;
-
-%date_plot = categorical(probe_dates);   //Crashes the program
-% probe_price = trade_price(probe_start(1):probe_end(end));
-% probe_size = trade_size(probe_start(1):probe_end(end));
-
-% figure;
-% subplot (2,1,1);
-% plot(trade_price,'r')
-% xlabel('Time')
-% ylabel('Price')
-% title('Trade Price')
-% %set(gca,probe_dates)
-% %xtickformat('dd-MMM-yyyy HH:MM:SS')
-% subplot (2,1,2);
-% plot(trade_size,'b', 'LineWidth',2)
-% xlabel('Time')
-% ylabel('Volume')
-% title('Trade Volume')
+average_price = movmean(trade_price,5);
+average_size = movmean(trade_size,5);
 
 %% Get 5 day moving average price
 %get days start and end indexes
-days = zeros(31,3);
+days = zeros(str2double(date_end)-str2double(date_start),3);
 for i = str2double(date_start):str2double(date_end)
     if(i<10)
         probe_string = ['0',num2str(i),'-',month,'-2007'];
@@ -73,15 +57,32 @@ daycount = 1;
 moving_avg = 5;
 moving_s = 1;
 moving_e = 0;
-avg_price = zeros(5,1);
-avg_size = zeros(5,1);
+dt = datetime(trade_dt);
 for i = 1:n
     if daycount == moving_avg+1
-        probe_price = trade_price(moving_s:moving_e);
+        plot_moving_average(moving_s,moving_e,trade_price,trade_size,average_price,average_size,dt)
+        daycount = 1;
+        moving_s = moving_e+1;
+    end
+    if days(i,2)~=0
+        %moving_s = min(moving_s,days(i,2));
+        moving_e = max(moving_e,days(i,3));
+        daycount = daycount + 1;
+    end
+    if i==n && daycount < moving_avg
+        plot_moving_average(moving_s,moving_e,trade_price,trade_size,average_price,average_size,dt)
+    end
+
+end
+
+function probe_price = plot_moving_average(moving_s,moving_e,trade_price,trade_size,average_price,average_size,dt)
+    probe_price = trade_price(moving_s:moving_e);
         probe_size = trade_size(moving_s:moving_e);
-        average_price = movmean(probe_price,3);
-        average_size = movmean(probe_size,3);
-        figure;
+        probe_avg_price = average_price(moving_s:moving_e);
+        probe_avg_size = average_size(moving_s:moving_e);
+        rolling_start = datestr(dt(moving_s));
+        rolling_end = datestr(dt(moving_e));
+        figure('Name', "Price Data from "+rolling_start+" to "+rolling_end);
         subplot(2,2,1)
         plot(probe_price,'r')    
         xlabel('Time')
@@ -93,25 +94,13 @@ for i = 1:n
         ylabel('Volume')
         title('Trade Volume')
         subplot(2,2,3)
-        plot(average_price,'r')
+        plot(probe_avg_price,'r')
         xlabel('Time')
         ylabel('Price')
         title('Average Price')
         subplot(2,2,4)
-        plot(average_size,'b')
+        plot(probe_avg_size,'b')
         xlabel('Time')
         ylabel('Price')
         title('Average Size')
-        daycount = 1;
-        moving_s = moving_e+1;
-    end
-    if days(i,2)~=0
-        %moving_s = min(moving_s,days(i,2));
-        moving_e = max(moving_e,days(i,3));
-        avg_price(daycount) = (sum(trade_price(moving_s:moving_e))/daycount);
-        avg_size(daycount) = (sum(trade_size(moving_s:moving_e))/daycount);
-        daycount = daycount + 1;
-    end
 end
-
-
