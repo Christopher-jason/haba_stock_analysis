@@ -18,6 +18,7 @@
 
 %load('stk_aug07.mat', 'stk_haba');
 
+%{
 month = 'Aug';
 date_start = '1';
 date_end = '31';
@@ -104,3 +105,6 @@ function probe_price = plot_moving_average(moving_s,moving_e,trade_price,trade_s
         ylabel('Price')
         title('Average Size')
 end
+%}
+
+

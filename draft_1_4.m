@@ -1,4 +1,4 @@
-%% Load data
+ %% Load data
 %%% Remove the '%' in the month you want to work with and run the program
 
 %% Get User data
@@ -33,8 +33,8 @@ date_start = "1";   %watch-out for weekends
 date_end = "17";     %watch-out for weekends
 %TODO: - Manipulate start and end time as well
 
- load('stk_aug07.mat', 'stk_haba');
-%jun_sdata = load('stk_jun07.mat','stk_haba');
+%load('stk_aug07.mat', 'stk_haba');
+%load('stk_jun07.mat','stk_haba');
 %load('stk_jul07.mat','stk_haba');
 
 %% Process Data
@@ -44,6 +44,9 @@ probe_prices = getPrices(stk_haba,probe_start,probe_end,month_start,month_end,da
 mid_price = getMidPrice(probe_prices,month_start,month_end,date_start,date_end);
 [returns,cum_ret] = getReturn(mid_price,month_start,month_end,date_start,date_end);
 [VWAP_bid,VWAP_ask] = getVWAP(stk_haba,date_time);
+ADV = getADV(stk_haba);
+[min , max] = getPeakDet(mid_price,cum_ret);
+
 
 %%%%%%%%%%%%%%%%%%%   Date   %%%%%%%%%%%%%%%%%%%%%%%%
 %date = stk_haba.order_book.date_time;  //get data from struct
@@ -134,7 +137,7 @@ function [VWAP_bid,VWAP_ask] = getVWAP(stk_haba,date_time)
 
 %%%%%%%%%%%%%%%%  All individual intervals within a time frame %%%%%%%%%%%%%%%
     figure;
-    for i = 1:time_range   %remove when smaller range is found
+    for i = 1:time_range   
         bid_data = cell2mat(probe_bids_cells(i));
         b_val = cumsum(bid_data(:,1).*bid_data(:,2));
         b_vol = cumsum(bid_data(:,2));
@@ -162,19 +165,20 @@ end
 
 function ADV = getADV(stk_haba)
 
-    month = "Aug";
-    date_start = "1";
-    date_end = "30";
+month = 'Aug';
+date_start = '1';
+date_end = '31';
 
-    %Have to use traded volume
-    %Have to use traded volume
+%Have to use traded volume
 trade_dt = datestr(stk_haba.trade_date_time);
 trade_price = stk_haba.trade_price;
 trade_size = stk_haba.trade_size;
+average_price = movmean(trade_price,5);
+average_size = movmean(trade_size,5);
 
 %% Get 5 day moving average price
 %get days start and end indexes
-days = zeros(31,3);
+days = zeros(str2double(date_end)-str2double(date_start),3);
 for i = str2double(date_start):str2double(date_end)
     if(i<10)
         probe_string = ['0',num2str(i),'-',month,'-2007'];
@@ -200,13 +204,36 @@ daycount = 1;
 moving_avg = 5;
 moving_s = 1;
 moving_e = 0;
-avg_price = zeros(5,1);
-avg_size = zeros(5,1);
+dt = datetime(trade_dt);
 for i = 1:n
     if daycount == moving_avg+1
-        probe_price = trade_price(moving_s:moving_e);
+        plot_moving_average(moving_s,moving_e,trade_price,trade_size,average_price,average_size,dt);
+        daycount = 1;
+        moving_s = moving_e+1;
+    end
+    if days(i,2)~=0
+        %moving_s = min(moving_s,days(i,2));
+        moving_e = max(moving_e,days(i,3));
+        daycount = daycount + 1;
+    end
+    if i==n && daycount < moving_avg
+        plot_moving_average(moving_s,moving_e,trade_price,trade_size,average_price,average_size,dt);
+    end
+
+end
+cum_DV = cumsum(trade_size);
+ADV = cum_DV(end)/length(days);
+end
+
+
+function probe_price = plot_moving_average(moving_s,moving_e,trade_price,trade_size,average_price,average_size,dt)
+    probe_price = trade_price(moving_s:moving_e);
         probe_size = trade_size(moving_s:moving_e);
-        figure;
+        probe_avg_price = average_price(moving_s:moving_e);
+        probe_avg_size = average_size(moving_s:moving_e);
+        rolling_start = datestr(dt(moving_s));
+        rolling_end = datestr(dt(moving_e));
+        figure('Name', "Price Data from "+rolling_start+" to "+rolling_end);
         subplot(2,2,1)
         plot(probe_price,'r')    
         xlabel('Time')
@@ -218,31 +245,41 @@ for i = 1:n
         ylabel('Volume')
         title('Trade Volume')
         subplot(2,2,3)
-        plot(avg_price,'r')
+        plot(probe_avg_price,'r')
         xlabel('Time')
         ylabel('Price')
         title('Average Price')
         subplot(2,2,4)
-        plot(avg_size,'b')
+        plot(probe_avg_size,'b')
         xlabel('Time')
         ylabel('Price')
         title('Average Size')
-        daycount = 1;
-        moving_s = moving_e+1;
-    end
-    if days(i,2)~=0
-        moving_e = max(moving_e,days(i,3));
-        avg_price(daycount) = (sum(trade_price(moving_s:moving_e))/daycount);
-        avg_size(daycount) = (sum(trade_size(moving_s:moving_e))/daycount);
-        daycount = daycount + 1;
-    end
 end
 
+function [min,max] = getPeakDet(mid_price,cum_ret)
+    basis_points = 25/10000;
+    [mintab, maxtab] = peakdet(mid_price,basis_points);
 
+    figure
+    subplot 211
+    hold on; plot(mintab(:,1), mintab(:,2), 'g*');
+    plot(maxtab(:,1), maxtab(:,2), 'r*' );
+    plot(mid_price,'b','lineWidth',2);
+    xlabel('Time')
+    ylabel ('Mid Price')
+    legend('Trough','Peak','Mid Price','Location','Northwest') 
+    title('Peaks and Troughs in Mid Price')
+    [mintab1, maxtab1] = peakdet(cum_ret,basis_points);
+    subplot 212
+    hold on; plot(mintab1(:,1), mintab1(:,2), 'g*');
+    plot(maxtab1(:,1), maxtab1(:,2), 'r*' );
+    plot(mid_price,'b','lineWidth',2);
+    xlabel('Time')
+    ylabel ('Cumulative Return(%)')
+    legend('Trough','Peak','Cumulative Return','Location','Northwest') 
+    title('Peaks and Troughs in Cumulative Return') 
+    min=mintab;
+    max = maxtab;
 end
-
-
-
-
 
 
