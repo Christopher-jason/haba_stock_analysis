@@ -273,7 +273,7 @@ function [min,max] = getPeakDet(mid_price,cum_ret)
     subplot 212
     hold on; plot(mintab1(:,1), mintab1(:,2), 'g*');
     plot(maxtab1(:,1), maxtab1(:,2), 'r*' );
-    plot(mid_price,'b','lineWidth',2);
+    plot(cum_ret,'b','lineWidth',2);
     xlabel('Time')
     ylabel ('Cumulative Return(%)')
     legend('Trough','Peak','Cumulative Return','Location','Northwest') 
