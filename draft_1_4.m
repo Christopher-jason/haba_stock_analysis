@@ -178,15 +178,15 @@ average_size = movmean(trade_size,5);
 
 %% Get 5 day moving average price
 %get days start and end indexes
-days = zeros(str2double(date_end)-str2double(date_start),3);
+days = zeros(str2double(date_end)-str2double(date_start)+1,3);
 for i = str2double(date_start):str2double(date_end)
-    if(i<10)
+    days(i,1) = i;
+    if(i<10) %add zero to dates less than 10
         probe_string = ['0',num2str(i),'-',month,'-2007'];
     else
         probe_string = [num2str(i),'-',month,'-2007'];
     end
     day_index = strmatch(probe_string,trade_dt);
-    days(i,1) = i;
     if isempty(day_index)
         days(i,2) = 0;
         days(i,3) = 0;

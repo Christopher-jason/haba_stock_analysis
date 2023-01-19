@@ -31,41 +31,56 @@ legend("Bids","Asks");
 
 mid_price_full = mean(prices_full, 2);
 
+moving_avg = movmean(mid_price_full,405);
+
+
 mid_price_jun = mean(prices_jun, 2);
 mid_price_jul = mean(prices_jul, 2);
 mid_price_aug = mean(prices_aug, 2);
 
+moving_avg_jun = movmean(mid_price_jun,101);
+moving_avg_jul = movmean(mid_price_jul,101);
+moving_avg_aug = movmean(mid_price_aug,101);
+
 figure; %Mid price plot full
-plot(mid_price_full,'lineWidth',2);
+hold('on')
+plot(mid_price_full);
+plot(moving_avg,'r');
 xlim([0,length(mid_price_full)])
 xlabel('Date');
 ylabel('Price');
 title('Mid-Price for Jun to Aug');
-legend("Mid Price");
+legend("Mid Price","5 day moving average");
 
 figure; %Mid price plot jun
-plot(mid_price_jun,'lineWidth',2);
+hold('on')
+plot(mid_price_jun);
+plot(moving_avg_jun,'r','LineWidth',1.1);
 xlim([0,length(mid_price_jun)])
 xlabel('Date');
 ylabel('Price');
 title('Mid-Price for Jun');
-legend("Mid Price");
+legend("Mid Price","5 day moving average");
 
 figure; %Mid price plot jul
-plot(mid_price_jul,'lineWidth',2);
+hold('on')
+plot(mid_price_jul);
+plot(moving_avg_jul,'r','LineWidth',1.1);
 xlim([0,length(mid_price_jul)])
 xlabel('Date');
 ylabel('Price');
 title('Mid-Price for Jul');
-legend("Mid Price");
+legend("Mid Price","5 day moving average");
 
 figure; %Mid price plot aug
-plot(mid_price_aug,'lineWidth',2);
+hold('on')
+plot(mid_price_aug);
+plot(moving_avg_aug,'r','LineWidth',1.1);
 xlim([0,length(mid_price_aug)])
 xlabel('Date');
 ylabel('Price');
 title('Mid-Price for Aug');
-legend("Mid Price");
+legend("Mid Price","5 day moving average");
 
 
 
@@ -189,7 +204,6 @@ title('Peaks and Troughs in Cumulative Return for jul with 50 basis points')
 
 % Aug
 basis_points_aug = 75; %change for different basis points
-
 [maxtab_cumreturns_aug, mintab_cumreturns_aug] = peakdet(cum_ret_aug,basis_points_aug/10000);
 figure
 hold on; 
@@ -204,23 +218,18 @@ title('Peaks and Troughs in Cumulative Return  for Aug with 75 basis points')
 
 
 
-
-
-
-%{
-
 %% use for specific days
 
 month_start = "Aug"; % Enter the month you loaded
 month_end = "Aug"; %Enter the month you loaded
-date_start = "1";   %watch-out for weekends
-date_end = "17";     %watch-out for weekends
+date_start = "20";   %watch-out for weekends
+date_end = "20";     %watch-out for weekends
 
 %for jun (comment the other two months while using this month)
-date_time_probe = datetime(datestr(jun.stk_haba.order_book.date_time));
+%date_time_probe = datetime(datestr(jun.stk_haba.order_book.date_time));
 
 %for jul (comment the other two months while using this month)
-date_time_probe = datetime(datestr(jul.stk_haba.order_book.date_time));
+%date_time_probe = datetime(datestr(jul.stk_haba.order_book.date_time));
 
 %for aug (comment the other two months while using this month)
 date_time_probe = datetime(datestr(aug.stk_haba.order_book.date_time));
@@ -228,8 +237,8 @@ date_time_probe = datetime(datestr(aug.stk_haba.order_book.date_time));
 probe_start = find(date_time_probe == datetime(date_start+'-'+month_start+'-2007 08:05:00'));
 probe_end = find(date_time_probe == datetime(date_end+'-'+month_end+'-2007 16:25:00'));
 
-probe_prices = cell2mat(jun.stk_haba.order_book.price(probe_start: probe_end));
-probe_prices = cell2mat(jul.stk_haba.order_book.price(probe_start: probe_end));
+%probe_prices = cell2mat(jun.stk_haba.order_book.price(probe_start: probe_end));
+%probe_prices = cell2mat(jul.stk_haba.order_book.price(probe_start: probe_end));
 probe_prices = cell2mat(aug.stk_haba.order_book.price(probe_start: probe_end));
 
 mid_price = mean(probe_prices, 2);
@@ -243,32 +252,45 @@ cum_ret_kurt = kurtosis(cum_ret);
 
 %% Peaks and troughs
 
-basis_points = 50; %change for different basis points
-[mintab_midprice, maxtab_midprice] = peakdet(mid_price,basis_points/10000);
+basis_points = 30; %change for different basis points
 
-figure
-hold on;
-plot(mintab_midprice(:,1), mintab_midprice(:,2), 'g*');
-plot(maxtab_midprice(:,1), maxtab_midprice(:,2), 'r*' );
-plot(mid_price,'b','lineWidth',1.5);
-xlabel('Time')
-ylabel ('Mid Price')
-%legend('Trough','Peak','Mid Price','Location','Northwest') 
-title('Peaks and Troughs in Mid Price with 50 basis points')
-
-[mintab_cumreturns, maxtab_cumreturns] = peakdet(cum_ret,basis_points/10000);
+[maxtab_cumreturns, mintab_cumreturns] = peakdet(cum_ret,basis_points/10000);
 figure
 hold on; 
 plot(mintab_cumreturns(:,1), mintab_cumreturns(:,2), 'g*');
 plot(maxtab_cumreturns(:,1), maxtab_cumreturns(:,2), 'r*' );
-plot(cum_ret,'b','lineWidth',1.5);
+plot(cum_ret,'b');
+xlim([0,length(cum_ret)])
 xlabel('Time')
 ylabel ('Cumulative Return(%)')
 legend('Trough','Peak','Cumulative Return','Location','Northwest') 
-title('Peaks and Troughs in Cumulative Return with 50 basis points') 
-
-%}
+title('Peaks and Troughs in Cumulative Return with 30 basis points') 
 
 
+%% NVWAP
 
+probe_bids_nvwap = aug.stk_haba.order_book.bids((probe_start+13):(probe_start + 13));
+probe_asks_nvwap = aug.stk_haba.order_book.asks((probe_start+13):(probe_start + 13));
+[time_range,~] = size(probe_bids_nvwap);
+figure;
+for i = 1:time_range
+    bid_data = cell2mat(probe_bids_nvwap(i));
+    b_val = cumsum(bid_data(:,1).*bid_data(:,2));
+    b_vol = cumsum(bid_data(:,2));
+    VWAP_bid = b_val./b_vol;
+    ask_data = cell2mat(probe_asks_nvwap(i));
+    a_val = cumsum(ask_data(:,1).*ask_data(:,2));
+    a_vol = cumsum(ask_data(:,2));
+    VWAP_ask = a_val./a_vol;
+    c_sub = 1;
+    r_sub = ceil(time_range/c_sub);
+    y = probe_start+i;
+    z = datestr(date_time_probe(y),'HH:MM');
+    subplot(r_sub,c_sub,i)
+    hold("on")
+    plot(b_vol,VWAP_bid,'r','LineWidth',2)
+    plot(a_vol,VWAP_ask,'b','LineWidth',2)
+    title("Orderbook at "+z)
+    hold("off")
+end
 

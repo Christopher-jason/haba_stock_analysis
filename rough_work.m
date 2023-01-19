@@ -107,4 +107,34 @@ function probe_price = plot_moving_average(moving_s,moving_e,trade_price,trade_s
 end
 %}
 
+%% moving avg
+month = 'Aug';
+date_start = '1';
+date_end = '31';
 
+%Have to use traded volume
+trade_dt = datestr(stk_haba.trade_date_time);
+trade_price = stk_haba.trade_price;
+trade_size = stk_haba.trade_size;
+average_price = movmean(trade_price,5);
+average_size = movmean(trade_size,5);
+
+days = zeros(str2double(date_end)-str2double(date_start)+1,3);
+trade_size_new = zeros(str2double(date_end)-str2double(date_start)+1,1);
+for i = str2double(date_start):str2double(date_end)
+    days(i,1) = i;
+    if(i<10) %add zero to dates less than 10
+        probe_string = ['0',num2str(i),'-',month,'-2007'];
+    else
+        probe_string = [num2str(i),'-',month,'-2007'];
+    end
+    day_index = strmatch(probe_string,trade_dt);
+    if isempty(day_index)
+        days(i,2) = 0;
+        days(i,3) = 0;
+    else
+        days(i,2) = day_index(1);
+        days(i,3) = day_index(end);
+        trade_size_new(i) = sum(trade_size(day_index));
+    end
+end
