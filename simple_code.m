@@ -19,6 +19,7 @@ prices_aug = cell2mat(aug.stk_haba.order_book.price(probe_start_aug: probe_end_a
 %% Price and Mid-Price
 
 prices_full = cat(1,prices_jun, prices_jul, prices_aug);
+date_time_full = cat(1,date_time_jun,date_time_jul,date_time_aug);
 
 
 
@@ -26,12 +27,12 @@ figure; %Price plot
 plot(prices_full);
 xlim([0,length(prices_full)])
 xlabel('Date'); ylabel('Price'); title('Price for Jun to Aug');
-legend("Bids","Asks");
+legend("Bids", "Asks");
 
 
 mid_price_full = mean(prices_full, 2);
 
-moving_avg = movmean(mid_price_full,405);
+moving_avg = movmean(mid_price_full,505);
 
 
 mid_price_jun = mean(prices_jun, 2);
@@ -44,13 +45,13 @@ moving_avg_aug = movmean(mid_price_aug,101);
 
 figure; %Mid price plot full
 hold('on')
-plot(mid_price_full);
-plot(moving_avg,'r');
+plot(mid_price_full); plot(moving_avg,'r');
 xlim([0,length(mid_price_full)])
-xlabel('Date');
-ylabel('Price');
-title('Mid-Price for Jun to Aug');
+xlabel('Date'); ylabel('Price'); title('Mid-Price for Jun to Aug');
 legend("Mid Price","5 day moving average");
+pd_price = fitdist(mid_price_full,'Normal');
+plot(pd_price)
+title('Price Distribution')
 
 figure; %Mid price plot jun
 hold('on')
@@ -83,44 +84,97 @@ title('Mid-Price for Aug');
 legend("Mid Price","5 day moving average");
 
 
+%% Mid price Stats
+
+mid_price_probe = mid_price_full; % change _full for jun, jul, aug, or full
+
+mp_mu_full = mean(mid_price_probe)
+mp_sigma_full = std(mid_price_probe)
+mp_variance_full = mp_sigma_full^2
+mp_skew_full = skewness(mid_price_probe)
+mp_kurt_full = kurtosis(mid_price_probe)
+high_full = max(mid_price_probe)
+low_full = min(mid_price_probe)
+high_full_in = find(mid_price_probe == max(mid_price_probe));
+low_full_in = find(mid_price_probe == min(mid_price_probe));
+low_full_dt = date_time_full(low_full_in)
+high_full_dt = date_time_full(high_full_in)
+
+
+
 
 %% Returns and Cum ret
 
 returns_full = [0;diff(log(mid_price_full))];
+mean_returns = mean(returns_full);
 ret_skew = skewness(returns_full);
 ret_kurt = kurtosis(returns_full);
-
-cum_ret_full = cumsum(returns_full);
+high_full = find(mid_price_full == max(mid_price_full));
+low_full = find(mid_price_full == min(mid_price_full));
 
 returns_jun = [0;diff(log(mid_price_jun))];
 ret_skew_jun = skewness(returns_jun);
 ret_kurt_jun = kurtosis(returns_jun);
+
 returns_jul = [0;diff(log(mid_price_jul))];
 ret_skew_jul = skewness(returns_jul);
 ret_kurt_jul = kurtosis(returns_jul);
+high_jul = find(mid_price_jul == max(mid_price_jul));
+low_jul = find(mid_price_jul == min(mid_price_jul));
+
 returns_aug = [0;diff(log(mid_price_aug))];
 ret_skew_aug = skewness(returns_aug);
 ret_kurt_aug = kurtosis(returns_aug);
+high_aug = find(mid_price_aug == max(mid_price_aug));
+low_aug = find(mid_price_aug == min(mid_price_aug));
+
+
+cum_ret_full = cumsum(returns_full);
+pd_cum = fitdist(cum_ret_full,'Normal');
+mu = mean(cum_ret_full);
+sigma = std(cum_ret_full);
+cum_skew_full = skewness(cum_ret_full);
+cum_kurt_full = kurtosis(cum_ret_full);
+plot(pd_cum);
+xlabel('Cumulative Return'); legend('')
 cum_ret_jun = cumsum(returns_jun);
 cum_ret_skew_jun = skewness(cum_ret_jun);
 cum_ret_kurt_jun = kurtosis(cum_ret_jun);
+
 cum_ret_jul = cumsum(returns_jul);
 cum_ret_skew_jul = skewness(cum_ret_jul);
 cum_ret_kurt_jul = kurtosis(cum_ret_jul);
+
 cum_ret_aug = cumsum(returns_aug);
 cum_ret_skew_aug = skewness(cum_ret_aug);
 cum_ret_kurt_aug = kurtosis(cum_ret_aug);
 
-figure; %Returns plot full
-plot(returns_full,'r');
+%% Cumulative Stats
+
+cum_ret_probe = cum_ret_jun; % change _full for jun, jul, aug, or full
+% cumulative returns can be calculated the same way
+cr_mu_full = mean(cum_ret_probe)
+cr_sigma_full = std(cum_ret_probe)
+cr_variance_full = cr_sigma_full^2
+cr_skew_full = skewness(cum_ret_probe)
+cr_kurt_full = kurtosis(cum_ret_probe)
+high_full = max(cum_ret_probe)
+low_full = min(cum_ret_probe)
+high_full_in = find(cum_ret_probe == max(cum_ret_probe));
+low_full_in = find(cum_ret_probe == min(cum_ret_probe));
+low_full_dt = date_time_full(low_full_in)
+high_full_dt = date_time_full(high_full_in)
+
+%% plot
+figure; %Returns vs cumulative return plot full
 hold("on")
+plot(returns_full,'r');
 plot(cum_ret_full,'b');
 xlim([0,length(returns_full)])
-xlabel('Date');
-ylabel('Price');
+xlabel('Date'); ylabel('Price');
 title('Returns for Jun - Aug 2007');
 legend("Return","Cumulative Returns");
-hold("off")
+
 
 figure; %Returns plot jun
 plot(returns_jun,'r');
