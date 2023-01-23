@@ -209,6 +209,31 @@ title('Returns for Aug 2007');
 legend("Return","Cumulative Returns");
 hold("off")
 
+%% Distribution Plotting.
+
+jun_price_pd = fitdist(mid_price_jun,'Normal');
+jul_price_pd = fitdist(mid_price_jul,'Normal');
+aug_price_pd = fitdist(mid_price_aug,'Normal');
+full_price_pd = fitdist(mid_price_full,'Normal');
+
+figure;
+subplot 221; plot(jun_price_pd); title("June 2007 (Price)")
+subplot 222; plot(jul_price_pd); title("July 2007 (Price)")
+subplot 223; plot(aug_price_pd); title("August 2007 (Price)")
+subplot 224; plot(full_price_pd); title("June - August 2007 (Price)")
+
+
+jun_ret_pd = fitdist(returns_jun,'Normal');
+jul_ret_pd = fitdist(returns_jul,'Normal');
+aug_ret_pd = fitdist(returns_aug,'Normal');
+full_ret_pd = fitdist(returns_full,'Normal');
+
+figure; 
+subplot 221; plot(jun_ret_pd); title("June 2007 (Returns)")
+subplot 222; plot(jul_ret_pd); title("July 2007 (Returns)")
+subplot 223; plot(aug_ret_pd); title("August 2007 (Returns)")
+subplot 224; plot(full_ret_pd); title("June - August 2007 (Returns)")
+
 %% Peaks and troughs
 
 % Full
@@ -274,39 +299,35 @@ title('Peaks and Troughs in Cumulative Return  for Aug with 75 basis points')
 
 %% use for specific days
 
-month_start = "Aug"; % Enter the month you loaded
-month_end = "Aug"; %Enter the month you loaded
+month_start = "Jun"; % Enter the month you loaded
+month_end = "Jun"; %Enter the month you loaded
 date_start = "20";   %watch-out for weekends
-date_end = "20";     %watch-out for weekends
+date_end = "22";     %watch-out for weekends
 
 %for jun (comment the other two months while using this month)
-%date_time_probe = datetime(datestr(jun.stk_haba.order_book.date_time));
+date_time_probe = datetime(datestr(jun.stk_haba.order_book.date_time));
 
 %for jul (comment the other two months while using this month)
 %date_time_probe = datetime(datestr(jul.stk_haba.order_book.date_time));
 
 %for aug (comment the other two months while using this month)
-date_time_probe = datetime(datestr(aug.stk_haba.order_book.date_time));
+%date_time_probe = datetime(datestr(aug.stk_haba.order_book.date_time));
 
 probe_start = find(date_time_probe == datetime(date_start+'-'+month_start+'-2007 08:05:00'));
 probe_end = find(date_time_probe == datetime(date_end+'-'+month_end+'-2007 16:25:00'));
 
-%probe_prices = cell2mat(jun.stk_haba.order_book.price(probe_start: probe_end));
+probe_prices = cell2mat(jun.stk_haba.order_book.price(probe_start: probe_end));
 %probe_prices = cell2mat(jul.stk_haba.order_book.price(probe_start: probe_end));
-probe_prices = cell2mat(aug.stk_haba.order_book.price(probe_start: probe_end));
+%probe_prices = cell2mat(aug.stk_haba.order_book.price(probe_start: probe_end));
 
 mid_price = mean(probe_prices, 2);
 returns = [0;diff(log(mid_price))];
-returns_skew = skewness(returns);
-returns_kurt = kurtosis(returns);
 cum_ret = cumsum(returns);
-cum_ret_skew = skewness(cum_ret);
-cum_ret_kurt = kurtosis(cum_ret);
 
 
 %% Peaks and troughs
 
-basis_points = 30; %change for different basis points
+basis_points = 25; %change for different basis points
 
 [maxtab_cumreturns, mintab_cumreturns] = peakdet(cum_ret,basis_points/10000);
 figure
@@ -323,8 +344,8 @@ title('Peaks and Troughs in Cumulative Return with 30 basis points')
 
 %% NVWAP
 
-probe_bids_nvwap = aug.stk_haba.order_book.bids((probe_start+13):(probe_start + 13));
-probe_asks_nvwap = aug.stk_haba.order_book.asks((probe_start+13):(probe_start + 13));
+probe_bids_nvwap = aug.stk_haba.order_book.bids((probe_start+22):(probe_start + 44));
+probe_asks_nvwap = aug.stk_haba.order_book.asks((probe_start+22):(probe_start + 44));
 [time_range,~] = size(probe_bids_nvwap);
 figure;
 for i = 1:time_range
@@ -336,9 +357,9 @@ for i = 1:time_range
     a_val = cumsum(ask_data(:,1).*ask_data(:,2));
     a_vol = cumsum(ask_data(:,2));
     VWAP_ask = a_val./a_vol;
-    c_sub = 1;
+    c_sub = 6;
     r_sub = ceil(time_range/c_sub);
-    y = probe_start+i;
+    y = probe_start+i+22;
     z = datestr(date_time_probe(y),'HH:MM');
     subplot(r_sub,c_sub,i)
     hold("on")
