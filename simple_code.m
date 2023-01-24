@@ -241,6 +241,7 @@ basis_points = 100; %change for different basis points
 
 [maxtab_cumreturns, mintab_cumreturns] = peakdet(cum_ret_full,basis_points/10000);
 figure
+subplot 224
 hold on; 
 plot(mintab_cumreturns(:,1), mintab_cumreturns(:,2), 'g*');
 plot(maxtab_cumreturns(:,1), maxtab_cumreturns(:,2), 'r*' );
@@ -248,14 +249,14 @@ plot(cum_ret_full,'b');
 xlim([0,length(cum_ret_full)])
 xlabel('Time')
 ylabel ('Cumulative Return(%)')
-legend('Trough','Peak','Cumulative Return','Location','Northwest') 
-title('Peaks and Troughs in Cumulative Return with 100 basis points') 
+legend('Trough','Peak','Cumulative Return','Location','Southwest') 
+title('Jun - Aug 2007 (100 basis)') 
 
 % Jun
 basis_points_jun = 25; %change for different basis points
 
 [maxtab_cumreturns_jun, mintab_cumreturns_jun] = peakdet(cum_ret_jun,basis_points_jun/10000);
-figure
+subplot 221
 hold on; 
 plot(mintab_cumreturns_jun(:,1), mintab_cumreturns_jun(:,2), 'r*');
 plot(maxtab_cumreturns_jun(:,1), maxtab_cumreturns_jun(:,2), 'g*' );
@@ -263,14 +264,14 @@ plot(cum_ret_jun,'b');
 xlim([0,length(cum_ret_jun)])
 xlabel('Time')
 ylabel ('Cumulative Return(%)')
-legend('Trough','Peak','Cumulative Return','Location','Northwest') 
-title('Peaks and Troughs in Cumulative Return for jun with 25 basis points') 
+legend('Trough','Peak','Cumulative Return','Location','Southwest') 
+title('Jun 2007 (25 basis)') 
 
 % Jul
-basis_points_jul = 50; %change for different basis points
+basis_points_jul = 25; %change for different basis points
 
 [maxtab_cumreturns_jul, mintab_cumreturns_jul] = peakdet(cum_ret_jul,basis_points_jul/10000);
-figure
+subplot 222
 hold on; 
 plot(mintab_cumreturns_jul(:,1), mintab_cumreturns_jul(:,2), 'g*');
 plot(maxtab_cumreturns_jul(:,1), maxtab_cumreturns_jul(:,2), 'r*' );
@@ -278,13 +279,13 @@ plot(cum_ret_jul,'b');
 xlim([0,length(cum_ret_jul)])
 xlabel('Time')
 ylabel ('Cumulative Return(%)')
-legend('Trough','Peak','Cumulative Return','Location','Northwest') 
-title('Peaks and Troughs in Cumulative Return for jul with 50 basis points') 
+legend('Trough','Peak','Cumulative Return','Location','Southwest') 
+title('Jul 2007 (25 basis)') 
 
 % Aug
-basis_points_aug = 75; %change for different basis points
+basis_points_aug = 25; %change for different basis points
 [maxtab_cumreturns_aug, mintab_cumreturns_aug] = peakdet(cum_ret_aug,basis_points_aug/10000);
-figure
+subplot 223
 hold on; 
 plot(mintab_cumreturns_aug(:,1), mintab_cumreturns_aug(:,2), 'g*');
 plot(maxtab_cumreturns_aug(:,1), maxtab_cumreturns_aug(:,2), 'r*' );
@@ -292,37 +293,63 @@ plot(cum_ret_aug,'b');
 xlim([0,length(cum_ret_aug)])
 xlabel('Time')
 ylabel ('Cumulative Return(%)')
-legend('Trough','Peak','Cumulative Return','Location','Northwest') 
-title('Peaks and Troughs in Cumulative Return  for Aug with 75 basis points') 
+legend('Trough','Peak','Cumulative Return','Location','Southwest') 
+title('Aug 2007 (25 basis)') 
+
+%% Total S/F C/E calc
 
 
+uptrends = 0;
+uptrends_jul = 0;
+uptrends_aug = 0;
 
+downtrends = 0;
+downtrends_jul = 0;
+downtrends_aug = 0;
+
+min_tab = mintab_cumreturns_jul;
+max_tab = mintab_cumreturns_jul;
+
+if(min_tab(1)<max_tab(1))
+    uptrends = length(max_tab);
+    downtrends = length(min_tab) - 1;
+else
+    uptrends = length(max_tab)-1;
+    downtrends = length(min_tab);
+end
+disp(uptrends)
+disp(downtrends)
+
+%for i = 1:max(min_tab,max_tab)
+    
+%end
 %% use for specific days
 
-month_start = "Jun"; % Enter the month you loaded
-month_end = "Jun"; %Enter the month you loaded
-date_start = "20";   %watch-out for weekends
-date_end = "22";     %watch-out for weekends
+
+%month_end = "Jul"; %Enter the month you loaded
+month = "Jul"; % Enter the month you loaded
+date_p = "11";   % Can be changed for each date
+date_end = "13";     %watch-out for weekends
 
 %for jun (comment the other two months while using this month)
-date_time_probe = datetime(datestr(jun.stk_haba.order_book.date_time));
+%date_time_probe = datetime(datestr(jun.stk_haba.order_book.date_time));
 
 %for jul (comment the other two months while using this month)
-%date_time_probe = datetime(datestr(jul.stk_haba.order_book.date_time));
+date_time_probe = datetime(datestr(jul.stk_haba.order_book.date_time));
 
 %for aug (comment the other two months while using this month)
 %date_time_probe = datetime(datestr(aug.stk_haba.order_book.date_time));
 
-probe_start = find(date_time_probe == datetime(date_start+'-'+month_start+'-2007 08:05:00'));
-probe_end = find(date_time_probe == datetime(date_end+'-'+month_end+'-2007 16:25:00'));
+probe_start = find(date_time_jul == datetime(date_p+'-'+month+'-2007 08:05:00'));
+probe_end = find(date_time_jul == datetime(date_p+'-'+month+'-2007 16:25:00'));
 
-probe_prices = cell2mat(jun.stk_haba.order_book.price(probe_start: probe_end));
+%probe_prices = cell2mat(jun.stk_haba.order_book.price(probe_start: probe_end));
 %probe_prices = cell2mat(jul.stk_haba.order_book.price(probe_start: probe_end));
 %probe_prices = cell2mat(aug.stk_haba.order_book.price(probe_start: probe_end));
 
 mid_price = mean(probe_prices, 2);
 returns = [0;diff(log(mid_price))];
-cum_ret = cumsum(returns);
+cum_ret = cum_ret_jul(probe_start:probe_end);
 
 
 %% Peaks and troughs
@@ -338,16 +365,19 @@ plot(cum_ret,'b');
 xlim([0,length(cum_ret)])
 xlabel('Time')
 ylabel ('Cumulative Return(%)')
-legend('Trough','Peak','Cumulative Return','Location','Northwest') 
-title('Peaks and Troughs in Cumulative Return with 30 basis points') 
+legend('Trough','Peak','Cumulative Return','Location','Southwest') 
+title('18th July with 25 basis points') 
 
 
 %% NVWAP
-
-probe_bids_nvwap = aug.stk_haba.order_book.bids((probe_start+22):(probe_start + 44));
-probe_asks_nvwap = aug.stk_haba.order_book.asks((probe_start+22):(probe_start + 44));
+start_lag = 33;
+date_time_jul(probe_start + start_lag);
+end_lag = 83;
+probe_bids_nvwap = aug.stk_haba.order_book.bids((probe_start+start_lag):(probe_start + end_lag));
+probe_asks_nvwap = aug.stk_haba.order_book.asks((probe_start+start_lag):(probe_start + end_lag));
 [time_range,~] = size(probe_bids_nvwap);
 figure;
+title("18th Jul")
 for i = 1:time_range
     bid_data = cell2mat(probe_bids_nvwap(i));
     b_val = cumsum(bid_data(:,1).*bid_data(:,2));
@@ -359,7 +389,7 @@ for i = 1:time_range
     VWAP_ask = a_val./a_vol;
     c_sub = 6;
     r_sub = ceil(time_range/c_sub);
-    y = probe_start+i+22;
+    y = probe_start+i+start_lag-1;
     z = datestr(date_time_probe(y),'HH:MM');
     subplot(r_sub,c_sub,i)
     hold("on")
@@ -368,4 +398,86 @@ for i = 1:time_range
     title("Orderbook at "+z)
     hold("off")
 end
+
+
+%% Bid and Ask Quantity Calc
+
+
+bid_jun = jun.stk_haba.order_book.bids;
+bid_jul = jul.stk_haba.order_book.bids;
+bid_aug = aug.stk_haba.order_book.bids;
+
+ask_jun = jun.stk_haba.order_book.asks;
+ask_jul = jul.stk_haba.order_book.asks;
+ask_aug = aug.stk_haba.order_book.asks;
+
+ask_quant_jun = zeros(2121,1);
+ask_quant_jul = zeros(2222,1);
+ask_quant_aug = zeros(2222,1);
+
+bid_quant_jun = zeros(2121,1);
+bid_quant_jul = zeros(2222,1);
+bid_quant_aug = zeros(2222,1);
+
+for i = 1:length(bid_jul)
+    if i <= length(bid_jun)
+        bid_data = cell2mat(bid_jun(i));
+        bid_quant_jun(i) = sum(bid_data(:,2));
+
+        ask_data = cell2mat(ask_jun(i));
+        ask_quant_jun(i) = sum(ask_data(:,2));
+    end
+    
+
+    bid_data = cell2mat(bid_jul(i));
+    bid_quant_jul(i) = sum(bid_data(:,2));
+
+    bid_data = cell2mat(bid_aug(i));
+    bid_quant_aug(i) = sum(bid_data(:,2));
+
+    ask_data = cell2mat(ask_jul(i));
+    ask_quant_jul(i) = sum(ask_data(:,2));
+
+    ask_data = cell2mat(ask_aug(i));
+    ask_quant_aug(i) = sum(ask_data(:,2));
+
+end
+
+
+%% Table Calculation
+
+t = probe_start + 67;
+t1 = probe_start + 77;
+
+ttime = date_time_jul(t)
+t1time = date_time_jul(t1)
+
+tmp = mid_price_jul(t)
+t1mp = mid_price_jul(t1)
+dlogmp = log(mid_price_jul(t1)) - log(mid_price_jul(t))
+
+tb = jul.stk_haba.order_book.beta(t,1)
+t1b = jul.stk_haba.order_book.beta(t1,1)
+dlogb = log(jul.stk_haba.order_book.beta(t1,1)) - log(jul.stk_haba.order_book.beta(t,1))
+
+tquant = bid_quant_jul(t)
+t1quant = bid_quant_jul(t1)
+dlogquant = log(bid_quant_jul(t1)) -log(bid_quant_jul(t))
+
+ta = jul.stk_haba.order_book.beta(t,2)
+t1a = jul.stk_haba.order_book.beta(t1,2)
+dloga = log(jul.stk_haba.order_book.beta(t1,2)) - log(jul.stk_haba.order_book.beta(t,2))
+
+tquantask = ask_quant_jul(t)
+t1quantask = ask_quant_jul(t1)
+dlogquantask = log(ask_quant_jul(t1)) -log(ask_quant_jul(t))
+
+
+
+
+
+
+
+
+
 
