@@ -370,15 +370,15 @@ title('18th July with 25 basis points')
 
 
 %% NVWAP
-start_lag = 33;
-date_time_jul(probe_start + start_lag);
-end_lag = 83;
+start_lag = 2;
+end_lag = 55;
 probe_bids_nvwap = aug.stk_haba.order_book.bids((probe_start+start_lag):(probe_start + end_lag));
 probe_asks_nvwap = aug.stk_haba.order_book.asks((probe_start+start_lag):(probe_start + end_lag));
 [time_range,~] = size(probe_bids_nvwap);
 figure;
 title("18th Jul")
-for i = 1:time_range
+
+for i = 1:2:time_range
     bid_data = cell2mat(probe_bids_nvwap(i));
     b_val = cumsum(bid_data(:,1).*bid_data(:,2));
     b_vol = cumsum(bid_data(:,2));
@@ -387,7 +387,7 @@ for i = 1:time_range
     a_val = cumsum(ask_data(:,1).*ask_data(:,2));
     a_vol = cumsum(ask_data(:,2));
     VWAP_ask = a_val./a_vol;
-    c_sub = 6;
+    c_sub = 3;
     r_sub = ceil(time_range/c_sub);
     y = probe_start+i+start_lag-1;
     z = datestr(date_time_probe(y),'HH:MM');
@@ -395,10 +395,14 @@ for i = 1:time_range
     hold("on")
     plot(b_vol,VWAP_bid,'r','LineWidth',2)
     plot(a_vol,VWAP_ask,'b','LineWidth',2)
+    xlabel("Volume")
+    ylabel("Price")
+    legend('Bid','Ask')
     title("Orderbook at "+z)
-    hold("off")
-end
 
+    hold("off")
+    i = i+1;
+end
 
 %% Bid and Ask Quantity Calc
 
