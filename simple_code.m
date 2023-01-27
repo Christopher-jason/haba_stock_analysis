@@ -171,7 +171,7 @@ hold("on")
 plot(returns_full,'r');
 plot(cum_ret_full,'b');
 xlim([0,length(returns_full)])
-xlabel('Date'); ylabel('Price');
+xlabel('Date'); ylabel('Returns');
 title('Returns for Jun - Aug 2007');
 legend("Return","Cumulative Returns");
 
@@ -182,7 +182,7 @@ hold("on")
 plot(cum_ret_jun,'b');
 xlim([0,length(returns_jun)])
 xlabel('Date');
-ylabel('Price');
+ylabel('Returns');
 title('Returns for Jun 2007');
 legend("Return","Cumulative Returns");
 hold("off")
@@ -328,7 +328,7 @@ disp(downtrends)
 
 %month_end = "Jul"; %Enter the month you loaded
 month = "Jul"; % Enter the month you loaded
-date_p = "11";   % Can be changed for each date
+date_p = "12";   % Can be changed for each date
 date_end = "13";     %watch-out for weekends
 
 %for jun (comment the other two months while using this month)
@@ -347,8 +347,8 @@ probe_end = find(date_time_jul == datetime(date_p+'-'+month+'-2007 16:25:00'));
 %probe_prices = cell2mat(jul.stk_haba.order_book.price(probe_start: probe_end));
 %probe_prices = cell2mat(aug.stk_haba.order_book.price(probe_start: probe_end));
 
-mid_price = mean(probe_prices, 2);
-returns = [0;diff(log(mid_price))];
+%mid_price = mean(probe_prices, 2);
+%returns = [0;diff(log(mid_price))];
 cum_ret = cum_ret_jul(probe_start:probe_end);
 
 
@@ -366,19 +366,17 @@ xlim([0,length(cum_ret)])
 xlabel('Time')
 ylabel ('Cumulative Return(%)')
 legend('Trough','Peak','Cumulative Return','Location','Southwest') 
-title('18th July with 25 basis points') 
+title('13th July with 25 basis points') 
 
 
 %% NVWAP
-start_lag = 2;
-end_lag = 55;
-probe_bids_nvwap = aug.stk_haba.order_book.bids((probe_start+start_lag):(probe_start + end_lag));
-probe_asks_nvwap = aug.stk_haba.order_book.asks((probe_start+start_lag):(probe_start + end_lag));
+start_lag =  4 - 1 ;
+end_lag = 9 - 1;
+probe_bids_nvwap = jul.stk_haba.order_book.bids((probe_start+start_lag):(probe_start + end_lag));
+probe_asks_nvwap = jul.stk_haba.order_book.asks((probe_start+start_lag):(probe_start + end_lag));
 [time_range,~] = size(probe_bids_nvwap);
 figure;
-title("18th Jul")
-
-for i = 1:2:time_range
+for i = 1:time_range
     bid_data = cell2mat(probe_bids_nvwap(i));
     b_val = cumsum(bid_data(:,1).*bid_data(:,2));
     b_vol = cumsum(bid_data(:,2));
@@ -396,13 +394,13 @@ for i = 1:2:time_range
     plot(b_vol,VWAP_bid,'r','LineWidth',2)
     plot(a_vol,VWAP_ask,'b','LineWidth',2)
     xlabel("Volume")
-    ylabel("Price")
-    legend('Bid','Ask')
+    ylabel("NVWAP")
+    
     title("Orderbook at "+z)
 
     hold("off")
-    i = i+1;
 end
+legend("Bid","Ask")
 
 %% Bid and Ask Quantity Calc
 
@@ -479,6 +477,7 @@ dlogquantask = log(ask_quant_jul(t1)) -log(ask_quant_jul(t))
 
 
 
+%% peaakdet
 
 
 
